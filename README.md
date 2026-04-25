@@ -4,25 +4,24 @@
 
 ### Author: Alexis Evans
 
-### Users:
+### Description:
 
-- Anyone with an overwhelming / busy schedule or checklist
+This project is an AI-based scheduling assistant that organizes tasks based on deadlines, priority, estimated duration, and inter-task dependencies.
 
-### Description
+### AI Techniques Used:
 
-System organizes and schedules tasks/events, gives recommendations from priority in a checklist style. All tasks should not overlap and are in order of time and deadline. User can input in each section text box or upload a csv / spreadsheet file.
+- Constraint Satisfaction Problem (CSP)
+- Topological Sorting for dependency resolution
+- Greedy scheduling heuristic
+- Basic planning under constraints
 
-### Measurements
+### How to run:
 
-- time
-- date
-- deadline
-- task/objective name
-- task time frame
+1. Install Python 3.10+
+2. Run: python main.py
 
-### Language
+### Features:
 
-### AI Approach
-
-- CSPs
-- Search Algorithms
+- Add tasks with deadlines and dependencies
+- Automatically generate optimized schedule
+- GUI-based interface (Tkinter)
