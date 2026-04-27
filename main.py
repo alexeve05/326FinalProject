@@ -14,7 +14,7 @@ class TaskApp:
     def build_ui(self):
         frame = ttk.Frame(self.root, padding=12)
         frame.pack(fill="both", expand=True)
-# Inputs
+        # Inputs
         self.name = self.create_input(frame, "Task Name")
         self.deadline = self.create_input(frame, "Deadline (YYYY-MM-DD HH:MM:SS)")
         self.duration = self.create_input(frame, "Duration (hours)")
@@ -22,20 +22,22 @@ class TaskApp:
         btn_frame = ttk.Frame(frame)
         btn_frame.pack(pady=5)
         ttk.Button(btn_frame, text="➕ Add Task", command=self.add_task).grid(row=0, column=0, padx=5)
-        ttk.Button(btn_frame, text="Generate Schedule", command=self.run_scheduler).grid(row=0, column=1, padx=5)
-        ttk.Button(btn_frame, text="Mark Complete", command=self.mark_complete).grid(row=0, column=2, padx=5)
-        ttk.Button(btn_frame, text="📂 Import CSV", command=self.import_csv).grid(row=0, column=3, padx=5)
-# Task Table
+        ttk.Button(btn_frame, text="⚡ Generate Schedule", command=self.run_scheduler).grid(row=0, column=1, padx=5)
+        ttk.Button(btn_frame, text="✅ Mark Complete", command=self.mark_complete).grid(row=0, column=2, padx=5)
+        ttk.Button(btn_frame, text="🗑 Remove Task", command=self.remove_task).grid(row=0, column=3, padx=5)
+        ttk.Button(btn_frame, text="🧹 Clear All", command=self.clear_all).grid(row=0, column=4, padx=5)
+        ttk.Button(btn_frame, text="📂 Import CSV", command=self.import_csv).grid(row=0, column=5, padx=5)
+        # Task Table
         self.tree = ttk.Treeview(frame, columns=("Deadline", "Duration", "Status"), show="headings")
         self.tree.heading("Deadline", text="Deadline")
         self.tree.heading("Duration", text="Hours")
         self.tree.heading("Status", text="Status")
         self.tree.pack(fill="both", expand=True, pady=10)
-# Calendar Section
+        # Calendar Section
         ttk.Label(frame, text="Calendar View").pack(anchor="w")
         self.calendar_frame = ttk.Frame(frame)
         self.calendar_frame.pack(fill="both", expand=True, pady=10)
-# Text fallback output
+        # Output log
         ttk.Label(frame, text="Schedule Log").pack(anchor="w")
         self.output = tk.Text(frame, height=8)
         self.output.pack(fill="both", expand=True)
@@ -66,6 +68,25 @@ class TaskApp:
         self.deadline.delete(0, tk.END)
         self.duration.delete(0, tk.END)
         self.deps.delete(0, tk.END)
+    def remove_task(self):
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showinfo("Select Task", "Select a task to remove")
+            return
+        for item in selected:
+            # remove from list
+            self.tasks = [t for t in self.tasks if t.name != item]
+            # remove from UI
+            self.tree.delete(item)
+    def clear_all(self):
+        if not messagebox.askyesno("Confirm", "Clear all tasks?"):
+            return
+        self.tasks.clear()
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.output.delete("1.0", tk.END)
+        for widget in self.calendar_frame.winfo_children():
+            widget.destroy()
     def import_csv(self):
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if not file_path:
@@ -114,7 +135,7 @@ class TaskApp:
             for task in grouped[day]:
                 ttk.Label(cell, text=f"• {task}").pack(anchor="w")
             col += 1
-            if col > 3:  # 4 columns per row
+            if col > 3:
                 col = 0
                 row += 1
     def run_scheduler(self):
@@ -123,7 +144,6 @@ class TaskApp:
             return
         try:
             schedule = schedule_tasks(self.tasks)
-# Text log
             self.output.delete("1.0", tk.END)
             current_day = None
             for task, day in schedule:
@@ -131,11 +151,10 @@ class TaskApp:
                     self.output.insert(tk.END, f"\n📅 {day}\n")
                     current_day = day
                 self.output.insert(tk.END, f"   • {task}\n")
-# Calendar grid view
             self.render_calendar(schedule)
         except Exception as e:
             messagebox.showerror("Scheduling Error", str(e))
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskApp(root)
-    root.mainloop()
+    root.mainloop()      
