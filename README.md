@@ -27,15 +27,15 @@
 
 ### Project Structure
 
-main.py → GUI + user interaction
+main.py: GUI + user interaction
 
-models.py → Task data model
+models.py: Task data model
 
-scheduler.py → CSP backtracking scheduler
+scheduler.py: CSP backtracking scheduler
 
-csp.py → constraint validation functions
+csp.py: constraint validation functions
 
-analysis.py → AI explanation + suggestions
+analysis.py: AI explanation + suggestions
 
 ---
 
