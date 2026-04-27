@@ -1,0 +1,4 @@
+name,deadline,duration,dependencies
+Math Homework,2026-04-28 23:59:59,2,
+CS Project,2026-04-30 23:59:59,5,Math Homework
+Study Exam,2026-05-01 20:00:00,3,CS Project

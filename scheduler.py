@@ -20,7 +20,7 @@ def topological_sort(tasks):
             if indegree[neighbor] == 0:
                 queue.append(neighbor)
     if len(order) != len(task_map):
-        raise Exception("Dependency cycle detected or missing dependency")
+        raise Exception("Dependency cycle or missing dependency detected")
     return order
 def schedule_tasks(tasks, hours_per_day=6, start_date="2026-04-25"):
     tasks = [t for t in tasks if not t.completed]
