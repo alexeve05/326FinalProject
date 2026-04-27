@@ -1,4 +1,5 @@
 # runs gui
+import datetime
 import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 import csv
@@ -125,12 +126,20 @@ class TaskApp:
             return
         schedule = schedule_tasks(self.tasks)
         self.output.delete("1.0", tk.END)
-        for task, start, end in schedule:
-            self.output.insert(tk.END, f"{task}: {start} → {end}\n")
-        self.render_calendar(schedule)
-        for task, start, end in schedule:
-            if start < "2026-04-26":
-                messagebox.showwarning("Scheduling Conflict", f"{task} may not be able to schedule before its deadline!")
+        if not schedule:
+            messagebox.showerror("CSP Failure", "No valid schedule exists under constraints.")
+            return
+        for task, (start, end) in schedule.items():
+            start_str = start.strftime("%Y-%m-%d %H:%M:%S")
+            end_str = end.strftime("%Y-%m-%d %H:%M:%S")
+            self.output.insert(tk.END, f"{task}: {start_str} → {end_str}\n")
+            self.render_calendar([
+            (task, start.strftime("%Y-%m-%d %H:%M:%S"), end.strftime("%Y-%m-%d %H:%M:%S"))
+            for task, (start, end) in schedule.items()
+    ])
+        for task, (start, end) in schedule.items():
+            if end > self.tasks[0].deadline:
+                messagebox.showwarning("Warning", f"{task} is tightly scheduled or near deadline")
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskApp(root)
