@@ -1,0 +1,7 @@
+name,deadline,duration,dependencies
+Task A,2026-04-27 11:00:00,2,
+Task B,2026-04-27 11:00:00,2,
+Task C,2026-04-27 12:00:00,3,
+Task D,2026-04-27 13:00:00,2,Task C
+Task E,2026-04-27 12:30:00,1,Task D
+Task F,2026-04-27 10:00:00,2,

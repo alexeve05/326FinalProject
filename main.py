@@ -3,12 +3,13 @@ import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 import csv
 from collections import defaultdict
+from tracemalloc import start
 from models import Task
 from scheduler import schedule_tasks
 class TaskApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Smart Task Scheduler ✨")
+        self.root.title("Smart Task Scheduler")
         self.tasks = []
         self.build_ui()
     def build_ui(self):
@@ -44,11 +45,11 @@ class TaskApp:
         self.tree.heading("Duration", text="Hours")
         self.tree.pack(fill="both", expand=True, pady=10)
         # calendar
-        ttk.Label(frame, text="📅 Calendar View").pack(anchor="w")
+        ttk.Label(frame, text="Calendar View").pack(anchor="w")
         self.calendar_frame = ttk.Frame(frame)
         self.calendar_frame.pack(fill="both", expand=True, pady=10)
         # output
-        ttk.Label(frame, text="📜 Schedule Log").pack(anchor="w")
+        ttk.Label(frame, text="Schedule Log").pack(anchor="w")
         self.output = tk.Text(frame, height=10)
         self.output.pack(fill="both", expand=True)
     def create_input(self, parent, label):
@@ -127,6 +128,9 @@ class TaskApp:
         for task, start, end in schedule:
             self.output.insert(tk.END, f"{task}: {start} → {end}\n")
         self.render_calendar(schedule)
+        for task, start, end in schedule:
+            if start < "2026-04-26":
+                messagebox.showwarning("Scheduling Conflict", f"{task} may not be able to schedule before its deadline!")
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskApp(root)
