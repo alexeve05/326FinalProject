@@ -7,8 +7,3 @@ class Task:
         self.deadline_str = deadline
         self.duration = float(duration)
         self.dependencies = [d.strip() for d in dependencies if d.strip()]
-        self.completed = False
-    def urgency_score(self):
-        now = datetime.now()
-        time_left = (self.deadline - now).total_seconds() / 3600
-        return time_left - self.duration

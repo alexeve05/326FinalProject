@@ -12,9 +12,21 @@ class TaskApp:
         self.tasks = []
         self.build_ui()
     def build_ui(self):
-        frame = ttk.Frame(self.root, padding=12)
-        frame.pack(fill="both", expand=True)
-        # Inputs
+        container = ttk.Frame(self.root)
+        container.pack(fill="both", expand=True)
+        canvas = tk.Canvas(container)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        frame = self.scrollable_frame
+        # inputs
         self.name = self.create_input(frame, "Task Name")
         self.deadline = self.create_input(frame, "Deadline (YYYY-MM-DD HH:MM:SS)")
         self.duration = self.create_input(frame, "Duration (hours)")
@@ -23,23 +35,21 @@ class TaskApp:
         btn_frame.pack(pady=5)
         ttk.Button(btn_frame, text="➕ Add Task", command=self.add_task).grid(row=0, column=0, padx=5)
         ttk.Button(btn_frame, text="⚡ Generate Schedule", command=self.run_scheduler).grid(row=0, column=1, padx=5)
-        ttk.Button(btn_frame, text="✅ Mark Complete", command=self.mark_complete).grid(row=0, column=2, padx=5)
-        ttk.Button(btn_frame, text="🗑 Remove Task", command=self.remove_task).grid(row=0, column=3, padx=5)
-        ttk.Button(btn_frame, text="🧹 Clear All", command=self.clear_all).grid(row=0, column=4, padx=5)
-        ttk.Button(btn_frame, text="📂 Import CSV", command=self.import_csv).grid(row=0, column=5, padx=5)
-        # Task Table
-        self.tree = ttk.Treeview(frame, columns=("Deadline", "Duration", "Status"), show="headings")
+        ttk.Button(btn_frame, text="🗑 Remove", command=self.remove_task).grid(row=0, column=2, padx=5)
+        ttk.Button(btn_frame, text="🧹 Clear", command=self.clear_all).grid(row=0, column=3, padx=5)
+        ttk.Button(btn_frame, text="📂 Import CSV", command=self.import_csv).grid(row=0, column=4, padx=5)
+        # table
+        self.tree = ttk.Treeview(frame, columns=("Deadline", "Duration"), show="headings")
         self.tree.heading("Deadline", text="Deadline")
         self.tree.heading("Duration", text="Hours")
-        self.tree.heading("Status", text="Status")
         self.tree.pack(fill="both", expand=True, pady=10)
-        # Calendar Section
-        ttk.Label(frame, text="Calendar View").pack(anchor="w")
+        # calendar
+        ttk.Label(frame, text="📅 Calendar View").pack(anchor="w")
         self.calendar_frame = ttk.Frame(frame)
         self.calendar_frame.pack(fill="both", expand=True, pady=10)
-        # Output log
-        ttk.Label(frame, text="Schedule Log").pack(anchor="w")
-        self.output = tk.Text(frame, height=8)
+        # output
+        ttk.Label(frame, text="📜 Schedule Log").pack(anchor="w")
+        self.output = tk.Text(frame, height=10)
         self.output.pack(fill="both", expand=True)
     def create_input(self, parent, label):
         ttk.Label(parent, text=label).pack(anchor="w")
@@ -55,14 +65,10 @@ class TaskApp:
                 self.deps.get().split(",") if self.deps.get() else []
             )
             self.tasks.append(task)
-            self.tree.insert("", "end", iid=task.name, values=(
-                task.deadline_str,
-                task.duration,
-                "Pending"
-            ))
+            self.tree.insert("", "end", iid=task.name, values=(task.deadline_str, task.duration))
             self.clear_inputs()
         except Exception as e:
-            messagebox.showerror("Invalid Input", str(e))
+            messagebox.showerror("Error", str(e))
     def clear_inputs(self):
         self.name.delete(0, tk.END)
         self.deadline.delete(0, tk.END)
@@ -70,17 +76,10 @@ class TaskApp:
         self.deps.delete(0, tk.END)
     def remove_task(self):
         selected = self.tree.selection()
-        if not selected:
-            messagebox.showinfo("Select Task", "Select a task to remove")
-            return
         for item in selected:
-            # remove from list
             self.tasks = [t for t in self.tasks if t.name != item]
-            # remove from UI
             self.tree.delete(item)
     def clear_all(self):
-        if not messagebox.askyesno("Confirm", "Clear all tasks?"):
-            return
         self.tasks.clear()
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -91,70 +90,44 @@ class TaskApp:
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if not file_path:
             return
-        try:
-            with open(file_path, newline="") as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    task = Task(
-                        row["name"],
-                        row["deadline"],
-                        float(row["duration"]),
-                        row.get("dependencies", "").split(",") if row.get("dependencies") else []
-                    )
-                    self.tasks.append(task)
-                    self.tree.insert("", "end", iid=task.name, values=(
-                        task.deadline_str,
-                        task.duration,
-                        "Pending"
-                    ))
-            messagebox.showinfo("Success", "CSV Imported Successfully!")
-        except Exception as e:
-            messagebox.showerror("CSV Error", str(e))
-    def mark_complete(self):
-        selected = self.tree.selection()
-        if not selected:
-            messagebox.showinfo("Select Task", "Select a task first")
-            return
-        for item in selected:
-            for t in self.tasks:
-                if t.name == item:
-                    t.completed = True
-            self.tree.set(item, "Status", "Completed")
+        with open(file_path, newline="") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                task = Task(
+                    row["name"],
+                    row["deadline"],
+                    float(row["duration"]),
+                    row.get("dependencies", "").split(",") if row.get("dependencies") else []
+                )
+                self.tasks.append(task)
+                self.tree.insert("", "end", iid=task.name, values=(task.deadline_str, task.duration))
     def render_calendar(self, schedule):
         for widget in self.calendar_frame.winfo_children():
             widget.destroy()
         grouped = defaultdict(list)
-        for task, day in schedule:
-            grouped[day].append(task)
-        row = 0
-        col = 0
+        for task, start, end in schedule:
+            day = start.split(" ")[0]
+            grouped[day].append((task, start, end))
+        row = col = 0
         for day in sorted(grouped.keys()):
             cell = ttk.Frame(self.calendar_frame, relief="ridge", padding=8)
             cell.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
             ttk.Label(cell, text=f"📅 {day}", font=("Arial", 10, "bold")).pack(anchor="w")
-            for task in grouped[day]:
-                ttk.Label(cell, text=f"• {task}").pack(anchor="w")
+            for task, start, end in grouped[day]:
+                ttk.Label(cell, text=f"• {task}\n  {start.split()[1]} - {end.split()[1]}").pack(anchor="w")
             col += 1
             if col > 3:
                 col = 0
                 row += 1
     def run_scheduler(self):
         if not self.tasks:
-            messagebox.showwarning("No tasks", "Add or import tasks first!")
             return
-        try:
-            schedule = schedule_tasks(self.tasks)
-            self.output.delete("1.0", tk.END)
-            current_day = None
-            for task, day in schedule:
-                if day != current_day:
-                    self.output.insert(tk.END, f"\n📅 {day}\n")
-                    current_day = day
-                self.output.insert(tk.END, f"   • {task}\n")
-            self.render_calendar(schedule)
-        except Exception as e:
-            messagebox.showerror("Scheduling Error", str(e))
+        schedule = schedule_tasks(self.tasks)
+        self.output.delete("1.0", tk.END)
+        for task, start, end in schedule:
+            self.output.insert(tk.END, f"{task}: {start} → {end}\n")
+        self.render_calendar(schedule)
 if __name__ == "__main__":
     root = tk.Tk()
     app = TaskApp(root)
-    root.mainloop()      
+    root.mainloop()
