@@ -52,4 +52,5 @@ cd your-project-folder
 ```
 
 3. Run program
+
    python main.py
