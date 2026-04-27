@@ -1,0 +1,7 @@
+name,deadline,duration,dependencies
+Research Topic Selection,2026-05-02 10:00:00,1,
+Find Sources,2026-05-02 14:00:00,2,Research Topic Selection
+Outline Paper,2026-05-03 10:00:00,2,Find Sources
+Write Draft,2026-05-04 18:00:00,4,Outline Paper
+Edit Draft,2026-05-05 12:00:00,2,Write Draft
+Final Submission,2026-05-05 23:59:59,1,Edit Draft

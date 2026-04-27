@@ -1,0 +1,8 @@
+name,deadline,duration,dependencies
+CS Homework,2026-04-29 23:59:59,2,
+Math Quiz Study,2026-04-28 20:00:00,1.5,
+Group Project Draft,2026-05-01 18:00:00,4,CS Homework
+Discussion Post,2026-04-27 17:00:00,1,
+Final Exam Study,2026-05-03 12:00:00,5,Math Quiz Study
+Laundry,2026-04-27 21:00:00,1,
+Club Meeting Prep,2026-04-28 16:00:00,1,
