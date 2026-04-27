@@ -5,16 +5,14 @@ def satisfies_dependencies(task, start_time, schedule):
     for dep in task.dependencies:
         if dep not in schedule:
             return False
-        dep_end = schedule[dep][1]
-        if dep_end > start_time:
+        if schedule[dep][1] > start_time:
             return False
     return True
 def satisfies_deadline(task, start_time):
-    end_time = start_time + timedelta(hours=task.duration)
-    return end_time <= task.deadline
+    return start_time + timedelta(hours=task.duration) <= task.deadline
 def no_conflicts(task, start_time, schedule):
     end_time = start_time + timedelta(hours=task.duration)
-    for other_task, (s, e) in schedule.items():
+    for _, (s, e) in schedule.items():
         if overlaps(start_time, end_time, s, e):
             return False
     return True

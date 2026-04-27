@@ -1,6 +1,7 @@
 # ai scheduling logic
 from datetime import timedelta
 from csp import is_valid
+from analysis import detect_conflicts
 def backtrack(tasks, schedule, index=0):
     if index == len(tasks):
         return schedule
@@ -22,4 +23,13 @@ def schedule_tasks(tasks):
     tasks = sorted(tasks, key=lambda t: t.deadline)
     schedule = {}
     result = backtrack(tasks, schedule)
-    return result if result else {}
+    if result:
+        return {
+            "schedule": result,
+            "status": "success"
+        }
+    return {
+        "schedule": {},
+        "status": "failure",
+        "conflicts": detect_conflicts(tasks)
+    }

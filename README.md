@@ -1,27 +1,55 @@
+# AI Scheduling Assistant
+
 # CS326 Final Project
 
-## AI Task Assistant
+## Author: Alexis Evans
 
-### Author: Alexis Evans
+### Features
 
-### Description:
+- Add tasks with:
+  - Name
+  - Deadline
+  - Duration
+  - Dependencies
+- CSV Import / Export support
+- Task preview table (before scheduling)
+- AI-based scheduling using CSP backtracking
+- Conflict detection and failure explanation
+- AI-generated suggestions for schedule improvement
+- Task deletion (from UI or table)
 
-This project is an AI-based scheduling assistant that organizes tasks based on deadlines, priority, estimated duration, and inter-task dependencies.
-
-### AI Techniques Used:
+### AI Techniques Used
 
 - Constraint Satisfaction Problem (CSP)
-- Topological Sorting for dependency resolution
-- Greedy scheduling heuristic
-- Basic planning under constraints
+- Backtracking search algorithm
+- Heuristic-based suggestion system
+- Conflict detection and explanation layer
 
-### How to run:
+### Project Structure
 
-1. Install Python 3.10+
-2. Run: python main.py
+main.py → GUI + user interaction
+models.py → Task data model
+scheduler.py → CSP backtracking scheduler
+csp.py → constraint validation functions
+analysis.py → AI explanation + suggestions
 
-### Features:
+---
 
-- Add tasks with deadlines and dependencies
-- Automatically generate optimized schedule
-- GUI-based interface (Tkinter)
+### Requirements
+
+- Python 3.9+
+- No external libraries required (uses built-in Tkinter, csv, datetime)
+
+### How to Run the Project
+
+1. Extract the zip file
+   Unzip the project folder.
+
+2. Navigate to project directory
+
+```bash
+cd your-project-folder
+```
+
+3. Run program
+   python main.py
